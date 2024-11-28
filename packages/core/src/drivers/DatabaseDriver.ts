@@ -316,6 +316,16 @@ export abstract class DatabaseDriver<C extends Connection> implements IDatabaseD
         return;
       }
 
+      if (prop.joinColumns && Utils.isEntity(data[k], true)) {
+        const pkArray = helper(data[k]).getPrimaryKeys(convertCustomTypes);
+        if (pkArray && pkArray.length === prop.joinColumns.length) {
+          prop.joinColumns.forEach((joinColumn, idx) => data[joinColumn] = pkArray[idx]);
+          delete data[k];
+
+          return;
+        }
+      }
+
       if (prop.joinColumns?.length > 1 && data[k] == null) {
         delete data[k];
         prop.ownColumns.forEach(joinColumn => data[joinColumn] = null);
